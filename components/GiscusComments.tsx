@@ -22,7 +22,7 @@ export default function GiscusComments() {
     script.crossOrigin = "anonymous";
 
     // Set configuration from environment variables or sensible fallbacks
-    script.setAttribute("data-repo", process.env.NEXT_PUBLIC_GISCUS_REPO || "D3vle0/blog-v7");
+    script.setAttribute("data-repo", process.env.NEXT_PUBLIC_GISCUS_REPO || "D3vle0/blog-v10");
     script.setAttribute("data-repo-id", process.env.NEXT_PUBLIC_GISCUS_REPO_ID || "");
     script.setAttribute("data-category", process.env.NEXT_PUBLIC_GISCUS_CATEGORY || "General");
     script.setAttribute("data-category-id", process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID || "");
