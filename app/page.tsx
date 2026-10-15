@@ -123,8 +123,7 @@ export default async function Home() {
             Devleo's Blog
           </h1>
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-            👋 정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다. <br />
-            현재 U.S. 8th Army에서 KATUSA로 군복무 중입니다.
+            👋 정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.
           </p>
           <div className="flex gap-5 mt-2">
             <a
@@ -171,27 +170,6 @@ export default async function Home() {
               </svg>
             </a>
           </div>
-        </div>
-
-        <div className="container flex flex-col md:flex-row justify-center items-center gap-6 mx-auto px-4">
-          <Image
-            alt="Spotify Recently Played"
-            src="https://spotify-recently-played-readme.vercel.app/api?user=85o05xl09h5de8ngv9im0txhx&count=3"
-            width={800}
-            height={210}
-            sizes="(max-width: 768px) 100vw, 420px"
-            className="h-auto md:h-[210px] w-full md:w-auto object-contain rounded-lg shadow-sm"
-            loading="lazy"
-          />
-          <Image
-            alt="ETS Counter"
-            src="https://ets-readme-counter.vercel.app/view?startdate=20250304&branch=army&lang=ko"
-            width={800}
-            height={210}
-            sizes="(max-width: 768px) 100vw, 420px"
-            className="h-auto md:h-[210px] w-full md:w-auto object-contain rounded-lg shadow-sm"
-            loading="lazy"
-          />
         </div>
       </section>
 

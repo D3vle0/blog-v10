@@ -10,7 +10,7 @@ export function BackButton() {
   const handleBack = () => {
     const fallbackUrl = sessionStorage.getItem("lastListUrl") || "/";
     const prevPath = sessionStorage.getItem("prevPath") || "";
-    
+
     if (prevPath.startsWith("/blog/")) {
       // Immediate previous page was another blog post.
       // Using router.back() would trap the user in a loop between posts.

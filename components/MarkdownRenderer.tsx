@@ -221,104 +221,104 @@ export function MarkdownRenderer({ content }: { content: string }) {
     <PhotoProvider maskOpacity={0.8}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeSlug]}
-      components={{
-        blockquote: CustomBlockquote,
-        pre: PreBlock,
-        code: CodeBlock,
-        p({ node, children }: any) {
-          // Check if children contain an image via AST node or React children matching Zoom/img
-          const hasImageInAST = node?.children?.some(
-            (child: any) => child.type === "element" && child.tagName === "img"
-          );
-
-          const hasImageInChildren = React.Children.toArray(children).some((child) => {
-            if (!React.isValidElement(child)) return false;
-            const type = (child as any).type;
-            return (
-              type === "img" ||
-              type === PhotoView ||
-              (typeof type === "function" && (type.name === "PhotoView" || type.displayName === "PhotoView"))
+        rehypePlugins={[rehypeRaw, rehypeSlug]}
+        components={{
+          blockquote: CustomBlockquote,
+          pre: PreBlock,
+          code: CodeBlock,
+          p({ node, children }: any) {
+            // Check if children contain an image via AST node or React children matching Zoom/img
+            const hasImageInAST = node?.children?.some(
+              (child: any) => child.type === "element" && child.tagName === "img"
             );
-          });
 
-          if (hasImageInAST || hasImageInChildren) {
-            return <div className="my-6">{children}</div>;
-          }
+            const hasImageInChildren = React.Children.toArray(children).some((child) => {
+              if (!React.isValidElement(child)) return false;
+              const type = (child as any).type;
+              return (
+                type === "img" ||
+                type === PhotoView ||
+                (typeof type === "function" && (type.name === "PhotoView" || type.displayName === "PhotoView"))
+              );
+            });
 
-          return <p>{children}</p>;
-        },
-        img({ src, alt, width, height, className, ...props }: any) {
-          const normalizedSrc = normalizeImageSrc(src);
-          if (!normalizedSrc) return null;
+            if (hasImageInAST || hasImageInChildren) {
+              return <div className="my-6">{children}</div>;
+            }
 
-          const isInvalidForNextImage =
-            normalizedSrc === "#" ||
-            normalizedSrc.trim() === "" ||
-            (!normalizedSrc.startsWith("/") && !normalizedSrc.startsWith("http"));
+            return <p>{children}</p>;
+          },
+          img({ src, alt, width, height, className, ...props }: any) {
+            const normalizedSrc = normalizeImageSrc(src);
+            if (!normalizedSrc) return null;
 
-          const { node: _node, ...rest } = props;
-          void _node;
-          const imageWidth = parseDimension(width, DEFAULT_IMAGE_WIDTH);
-          const imageHeight = parseDimension(height, DEFAULT_IMAGE_HEIGHT);
-          const mergedClassName = [
-            "rounded-xl border border-border shadow-sm max-h-[600px] object-contain mx-auto",
-            className,
-          ]
-            .filter(Boolean)
-            .join(" ");
+            const isInvalidForNextImage =
+              normalizedSrc === "#" ||
+              normalizedSrc.trim() === "" ||
+              (!normalizedSrc.startsWith("/") && !normalizedSrc.startsWith("http"));
 
-          if (isInvalidForNextImage) {
+            const { node: _node, ...rest } = props;
+            void _node;
+            const imageWidth = parseDimension(width, DEFAULT_IMAGE_WIDTH);
+            const imageHeight = parseDimension(height, DEFAULT_IMAGE_HEIGHT);
+            const mergedClassName = [
+              "rounded-xl border border-border shadow-sm max-h-[600px] object-contain mx-auto",
+              className,
+            ]
+              .filter(Boolean)
+              .join(" ");
+
+            if (isInvalidForNextImage) {
+              return (
+                <PhotoView src={normalizedSrc}>
+                  <img
+                    {...rest}
+                    src={normalizedSrc}
+                    alt={alt ?? ""}
+                    width={imageWidth}
+                    height={imageHeight}
+                    className={`${mergedClassName} cursor-zoom-in hover:opacity-90 transition-opacity`}
+                    style={{ width: "100%", height: "auto" }}
+                    loading="lazy"
+                  />
+                </PhotoView>
+              );
+            }
+
             return (
               <PhotoView src={normalizedSrc}>
-                <img
+                <Image
                   {...rest}
                   src={normalizedSrc}
                   alt={alt ?? ""}
                   width={imageWidth}
                   height={imageHeight}
+                  unoptimized={normalizedSrc.includes(".svg") || normalizedSrc.includes("vercel.app")}
+                  sizes="(max-width: 768px) 100vw, 768px"
                   className={`${mergedClassName} cursor-zoom-in hover:opacity-90 transition-opacity`}
                   style={{ width: "100%", height: "auto" }}
                   loading="lazy"
                 />
               </PhotoView>
             );
-          }
-
-          return (
-            <PhotoView src={normalizedSrc}>
-              <Image
-                {...rest}
-                src={normalizedSrc}
-                alt={alt ?? ""}
-                width={imageWidth}
-                height={imageHeight}
-                unoptimized={normalizedSrc.includes(".svg") || normalizedSrc.includes("vercel.app")}
-                sizes="(max-width: 768px) 100vw, 768px"
-                className={`${mergedClassName} cursor-zoom-in hover:opacity-90 transition-opacity`}
-                style={{ width: "100%", height: "auto" }}
-                loading="lazy"
-              />
-            </PhotoView>
-          );
-        },
-        a({ href, children, ...props }: any) {
-          const isAnchor = href?.startsWith("#");
-          return (
-            <a
-              href={href}
-              target={isAnchor ? undefined : "_blank"}
-              rel={isAnchor ? undefined : "noopener noreferrer"}
-              {...props}
-            >
-              {children}
-            </a>
-          );
-        },
-      }}
-    >
-      {content}
-    </ReactMarkdown>
+          },
+          a({ href, children, ...props }: any) {
+            const isAnchor = href?.startsWith("#");
+            return (
+              <a
+                href={href}
+                target={isAnchor ? undefined : "_blank"}
+                rel={isAnchor ? undefined : "noopener noreferrer"}
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </PhotoProvider>
   );
 }

@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Devleo's Blog",
-  description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.\n현재 U.S. 8th Army에서 KATUSA로 군복무 중입니다.",
+  description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.",
   openGraph: {
     title: "Devleo's Blog",
-    description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.\n현재 U.S. 8th Army에서 KATUSA로 군복무 중입니다.",
+    description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.",
     url: "https://devleo.us",
     siteName: "Devleo's Blog",
     images: [
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Devleo's Blog",
-    description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.\n현재 U.S. 8th Army에서 KATUSA로 군복무 중입니다.",
+    description: "정보보안, AI, 블록체인, 프로그래밍을 공부하는 학생입니다.",
     images: ["/icon.jpg"],
   },
 };
@@ -72,7 +72,7 @@ export default function RootLayout({
           <footer className="border-t border-border/40 py-6">
             <div className="container flex items-center justify-center mx-auto px-4 sm:px-8">
               <p className="text-center text-sm leading-loose text-muted-foreground">
-                © 2026 Devleo's Blog · made by @D3vle0 with ❤️
+                © 2026 Devleo's Blog · made by <a href="https://github.com/D3vle0">@D3vle0</a> with ❤️
               </p>
             </div>
           </footer>
