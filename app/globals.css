@@ -137,6 +137,9 @@
 
   * {
     @apply border-border outline-ring/50;
+  }
+
+  *:not(.katex):not(.katex *) {
     font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
@@ -178,4 +181,10 @@ html.dark [data-rmiz-modal-overlay="visible"],
   background-color: rgba(25, 25, 25, 0.85) !important; /* Perfect match with dark theme bg: rgb(25 25 25) */
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
 }

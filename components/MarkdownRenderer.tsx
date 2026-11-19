@@ -3,8 +3,11 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import Image from "next/image";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -216,12 +219,138 @@ function PreBlock({ children }: any) {
   return <pre className="not-prose">{children}</pre>;
 }
 
+const escapeNonMathDollarsInSegment = (segment: string): string => {
+  let result = "";
+  let i = 0;
+
+  while (i < segment.length) {
+    // Keep already-escaped characters intact
+    if (segment[i] === "\\" && i + 1 < segment.length) {
+      result += segment.slice(i, i + 2);
+      i += 2;
+      continue;
+    }
+
+    // Keep $$ pairs intact
+    if (segment[i] === "$" && segment[i + 1] === "$") {
+      result += "$$";
+      i += 2;
+      continue;
+    }
+
+    if (segment[i] === "$") {
+      // Find next unescaped single $
+      let j = i + 1;
+      let closingIndex = -1;
+      while (j < segment.length) {
+        if (segment[j] === "\\" && j + 1 < segment.length) {
+          j += 2;
+          continue;
+        }
+        if (segment[j] === "$" && segment[j + 1] !== "$" && segment[j - 1] !== "$") {
+          closingIndex = j;
+          break;
+        }
+        j++;
+      }
+
+      if (closingIndex !== -1) {
+        const inner = segment.slice(i + 1, closingIndex);
+        const charAfter = segment[closingIndex + 1] ?? "";
+        const isValidInlineMath =
+          inner.length > 0 &&
+          !/^\s/.test(inner) &&
+          !/\s$/.test(inner) &&
+          !/^\d/.test(charAfter);
+
+        if (isValidInlineMath) {
+          result += segment.slice(i, closingIndex + 1);
+          i = closingIndex + 1;
+          continue;
+        }
+      }
+
+      result += "\\$";
+      i += 1;
+      continue;
+    }
+
+    result += segment[i];
+    i += 1;
+  }
+
+  return result;
+};
+
+const preprocessMath = (content: string): string => {
+  const lines = content.split("\n");
+  const output: string[] = [];
+  let inFence = false;
+  let fenceChar = "";
+  let inDisplayMath = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (!inDisplayMath) {
+      const fenceMatch = trimmed.match(/^(`{3,}|~{3,})/);
+      if (fenceMatch) {
+        if (!inFence) {
+          inFence = true;
+          fenceChar = fenceMatch[1][0];
+        } else if (fenceMatch[1][0] === fenceChar) {
+          inFence = false;
+          fenceChar = "";
+        }
+        output.push(line);
+        continue;
+      }
+    }
+
+    if (inFence) {
+      output.push(line);
+      continue;
+    }
+
+    if (trimmed === "$$") {
+      inDisplayMath = !inDisplayMath;
+      output.push(line);
+      continue;
+    }
+
+    if (inDisplayMath) {
+      output.push(line);
+      continue;
+    }
+
+    // Normalize standalone single-line $$...$$ into multi-line block display math
+    const singleLineDisplayMatch = line.match(/^(\s*)\$\$(.+?)\$\$(\s*)$/);
+    if (singleLineDisplayMatch && !singleLineDisplayMatch[2].includes("$$")) {
+      const indent = singleLineDisplayMatch[1];
+      const expr = singleLineDisplayMatch[2].trim();
+      output.push(`${indent}$$`, `${indent}${expr}`, `${indent}$$`);
+      continue;
+    }
+
+    // Preserve inline code spans while sanitizing non-math $ signs in prose
+    const processedLine = line
+      .split(/(`+[^`]*`+)/g)
+      .map((part, idx) => (idx % 2 === 1 ? part : escapeNonMathDollarsInSegment(part)))
+      .join("");
+    output.push(processedLine);
+  }
+
+  return output.join("\n");
+};
+
 export function MarkdownRenderer({ content }: { content: string }) {
+  const processedContent = preprocessMath(content);
+
   return (
     <PhotoProvider maskOpacity={0.8}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, rehypeSlug]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeRaw, rehypeSlug, [rehypeKatex, { strict: false, throwOnError: false }]]}
         components={{
           blockquote: CustomBlockquote,
           pre: PreBlock,
@@ -317,7 +446,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
           },
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </PhotoProvider>
   );
